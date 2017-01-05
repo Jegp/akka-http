@@ -29,6 +29,9 @@ inThisBuild(Def.settings(
     "-Ywarn-dead-code"
     // "-Xfuture" // breaks => Unit implicits
   ),
+  javacOptions ++= Seq(
+    "-encoding", "UTF-8"
+  ),
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
   Dependencies.Versions,
   Formatting.formatSettings,
@@ -40,6 +43,7 @@ lazy val root = Project(
     base = file(".")
   )
   .enablePlugins(UnidocRoot, NoPublish, DeployRsync)
+  .disablePlugins(MimaPlugin)
   .settings(
     // Unidoc doesn't like macros
     unidocProjectExcludes := Seq(parsing),
@@ -70,7 +74,6 @@ lazy val httpCore = project("akka-http-core")
   .dependsOn(parsing)
   .addAkkaModuleDependency("akka-stream")
   .addAkkaModuleDependency("akka-stream-testkit", "test")
-  //.disablePlugins(MimaPlugin)
 
 lazy val http = project("akka-http")
   .dependsOn(httpCore)
@@ -96,7 +99,6 @@ lazy val httpTests = project("akka-http-tests")
 
 
 lazy val httpMarshallersScala = project("akka-http-marshallers-scala")
-  //.disablePlugins(MimaPlugin)
   .enablePlugins(NoPublish)
   .aggregate(httpSprayJson, httpXml)
 
@@ -107,7 +109,6 @@ lazy val httpSprayJson =
   httpMarshallersScalaSubproject("spray-json")
 
 lazy val httpMarshallersJava = project("akka-http-marshallers-java")
-  //.disablePlugins(MimaPlugin)
   .enablePlugins(NoPublish)
   .aggregate(httpJackson)
 
@@ -123,7 +124,6 @@ def httpMarshallersScalaSubproject(name: String) =
     base = file(s"akka-http-marshallers-scala/akka-http-$name"),
     dependencies = Seq(http)
   )
-  //.disablePlugins(MimaPlugin)
 
 def httpMarshallersJavaSubproject(name: String) =
   Project(
@@ -131,7 +131,6 @@ def httpMarshallersJavaSubproject(name: String) =
     base = file(s"akka-http-marshallers-java/akka-http-$name"),
     dependencies = Seq(http)
   )
-  //.disablePlugins(MimaPlugin)
 
 lazy val docs = project("docs")
   .enablePlugins(ParadoxPlugin, NoPublish, DeployRsync)
