@@ -51,6 +51,23 @@ All parameters of `HttpRequest.apply` have default values set, so `headers` for 
 if there are none. Many of the parameters types (like `HttpEntity` and `Uri`) define implicit conversions
 for common use cases to simplify the creation of request and response instances.
 
+<a id="synthetic-headers-scala"></a>
+### Synthetic Headers
+
+In some cases it may be necessary to deviate from fully RFC-Compliant behavior. For instance, Amazon S3 treats 
+the + character in the path part of the URL as a string, even though the RFC specifies that this behavior should
+be limited exclusively to the query portion of the URI.
+
+In order to work around these types of edge cases, Akka HTTP provides for the ability to provide extra, 
+non-standard information to the request via synthetic headers. These headers are not passed to the client
+but are instead consumed by the request engine and used to override default behavior.
+
+For instance, in order to provide a raw request uri, bypassing the default url normalization, you could do the
+following:
+
+    import akka.http.scaladsl.model.headers.`Raw-Request-URI`
+    val req = HttpRequest(uri = "/ignored", headers=List(`Raw-Request-URI`("/a/b%2Bc")))
+
 ## HttpResponse
 
 An `HttpResponse` consists of
@@ -333,3 +350,26 @@ need to register the custom media type in the server's settings by configuring `
 
 You may also want to read about MediaType [Registration trees](https://en.wikipedia.org/wiki/Media_type#Registration_trees), in order to register your vendor specific media types
 in the right style / place.
+
+<a id="registeringcustomstatuscodes"></a>
+## Registering Custom Status Codes
+
+Similarily to media types, Akka HTTP @scaladoc:[predefines](akka.http.scaladsl.model.StatusCodes$)
+well-known status codes, however sometimes you may need to use a custom one (or are forced to use an API which returns custom status codes).
+Similarily to the media types registration, you can register custom status codes by configuring `ParserSettings` like this:
+
+@@snip [CustomHttpMethodSpec.scala](../../../../../../../docs/http/scaladsl/server/directives/CustomHttpStatusCodeSpec.scala) { #application-custom }
+
+## The URI model
+
+Akka HTTP offers its own specialised URI model class which is tuned for both performance and idiomatic usage within
+other types of the HTTP model. For example, an `HTTPRequest`'s target URI is parsed into this type, where all character
+escaping and other URI specific semantics are applied.
+
+### Obtaining the Raw Request URI
+
+Sometimes it may be needed to obtain the "raw" value of an incoming URI, without applying any escaping or parsing to it.
+While this use-case is rare, it comes up every once in a while. It is possible to obtain the "raw" request URI in Akka
+HTTP Server side by turning on the `akka.http.server.raw-request-uri-header` flag.
+When enabled, a `Raw-Request-URI` header will be added to each request. This header will hold the original raw request's
+URI that was used. For an example check the reference configuration.

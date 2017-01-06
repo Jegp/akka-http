@@ -18,5 +18,6 @@ addSbtPlugin("pl.project13.sbt" % "sbt-jol" % "0.1.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.0-RC1")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.0") // for advanced PR validation features
 addSbtPlugin("io.spray" % "sbt-boilerplate" % "0.6.0")
+addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % "0.1.2")
 
 libraryDependencies += "org.kohsuke" % "github-api" % "1.68"
